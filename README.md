@@ -20,6 +20,8 @@ The lab replicates a real-world SOC environment where:
 
 The objective was to demonstrate how Security Operations Centers (SOCs) monitor authentication activity, detect suspicious behavior, and investigate attacks using log data and threat intelligence frameworks.
 
+---
+
 ## Value & Impact of the Lab
 
 This lab provides hands-on experience with:
