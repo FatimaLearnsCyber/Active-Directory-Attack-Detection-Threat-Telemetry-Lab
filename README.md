@@ -1,5 +1,5 @@
 # Active-Directory-Attack-Detection-Threat-Telemetry-Lab
-*Windows Server 2022 | Active Directory | Splunk SIEM | Sysmon | Kali Linux | Atomic Red Team*
+*Windows Server 2022 | Active Directory | Splunk SIEM | Sysmon | Kali Linux | Hydra | Atomic Red Team*
 
 
 ## Project Overview
