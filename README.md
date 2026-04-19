@@ -22,6 +22,15 @@ The objective was to demonstrate how Security Operations Centers (SOCs) monitor 
 
 ## Value & Impact of the Lab
 
+This lab provides hands-on experience with:
+
+- Simulating real-world Active Directory attacks
+- Understanding authentication-based attack vectors
+- Building a SOC-like detection pipeline
+- Analyzing logs using SIEM tools
+- Mapping activity to MITRE ATT&CK techniques
+
+It bridges the gap between theoretical cybersecurity concepts and practical detection workflows used in real environments.
 
 ---
 
@@ -128,16 +137,24 @@ Restarted service:
 net stop splunkforwarder
 net start splunkforwarder
 ```
+Changed service logon settings:
+- Set "Log on as" → Local System Account
+
+Purpose:
+* Ensures proper permission to collect system and security logs without restriction.
 
 ---
 
 ## Phase 3 — Sysmon Installation
-Installed Sysmon with configuration:
+Installed Sysmon using a community configuration file:
+
+- Downloaded Sysmon configuration from GitHub.
+- Applied configuration during installation
 ```bash
 sysmon.exe -i sysmonconfig.xml
 ```
 Purpose:
-* Capture detailed endpoint activity including process execution and network connections.
+* Predefined rules to capture relevant security events such as process creation, network connections, and suspicious activity.
 
 ---
 
@@ -149,7 +166,6 @@ Purpose:
 * Enables domain-based authentication and identity management.
 
 #### Promote to Domain Controller
-* Created new domain:
 
 Created new domain:
 ```bash
@@ -179,18 +195,35 @@ Changed DNS to AD server IP:
 ```bash
 192.168.10.7
 ```
-Successfully joined domain and logged in with domain user.
+After joining the domain:
+- Logged in using domain credentials (same as AD server administrator)
+- Then logged in as domain user: Roshni Anwar
+- Restarted system to apply domain policies
+
+Purpose:
+* Validates domain authentication and user access within AD environment.
 
 ---
 
 ## Phase 6 - Attack Simulation (Brute Force)
-Install brute forcing tool (Crowbar)
+
+#### RDP Configuration on Target Machine
+
+Enabled Remote Desktop Protocol (RDP) on Windows 10 target machine.
+
+Added users:
+- Roshni Anwar
+- Faaran Sikandar
+
+Purpose:
+* Allows remote authentication attempts, enabling brute-force attack simulation.
+
+#### Install brute forcing tool (Crowbar)
 ```bash
 sudo apt-get install -y crowbar
 ```
 Created the password file
 ```bash
-cd /Desktop
 cd /usr/share/wordlists/
 sudo gunzip rockyou.txt.gz
 cp rockyou.txt ~/Desktop/ad-project
@@ -199,7 +232,7 @@ head -n 20 rockyou.txt > passwords.txt
 ```
 Add the targeted account password to the passwords.txt file.
 
-(Got Alot of errors working with crowbar so I switched to Hydra)
+(Encountered multiple errors while using Crowbar, so switched to Hydra for more reliable execution.)
 
 ```bash
 hydra -t 1 -l Roshni -P passwords.txt (TARGET-IP) rdp
@@ -221,8 +254,8 @@ index=endpoint EventCode=4625
 ```
 Shows:
 - Failed login attempts
-- Source IP (attacker)
-- Target account
+- Source IP (Kali attacker: 192.168.10.250)
+- Target account being attacked
 
 #### Successful Login (Event ID 4624)
 ```bash
@@ -276,6 +309,24 @@ Available in:
 - DNS misconfiguration can break domain connectivity
 - Attack simulation helps validate detection capabilities
 - Troubleshooting builds real-world SOC skills
+
+---
+
+## Challenges & Troubleshooting
+
+During this lab, several issues were encountered:
+
+- Domain join failure due to incorrect DNS configuration
+- Splunk forwarder not sending logs due to service permissions
+- Crowbar brute-force tool errors
+- Log ingestion delays and indexing issues
+
+Resolution involved:
+- Debugging configurations
+- Reviewing documentation
+- Testing multiple approaches
+
+This process significantly improved troubleshooting and problem-solving skills.
 
 ---
 
