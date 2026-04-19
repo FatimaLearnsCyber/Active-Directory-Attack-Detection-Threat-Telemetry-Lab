@@ -3,7 +3,7 @@
 
 
 ## Project Overview
-*This project demonstrates the design and implementation of an enterprise-style Active Directory security lab focused on attack simulation and detection using Splunk SIEM.*
+*This project simulates a realistic enterprise Active Directory environment where an attacker performs brute-force login attempts against domain users. The attack is detected using endpoint telemetry collected via Sysmon and analyzed in Splunk.*
 
 ---
 
@@ -30,8 +30,8 @@ The objective was to demonstrate how Security Operations Centers (SOCs) monitor 
 
 | Component | Role |
 |----------|------|
-| Windows Server 2022 | Active Directory Domain Controller |
-| Windows 10 | Domain-joined endpoint (target machine) |
+| Windows Server 2022 | Active Directory Domain Controller (ADDC01) |
+| Windows 10 | Domain-joined endpoint (Target Machine) |
 | Ubuntu Server | Splunk SIEM |
 | Kali Linux | Attacker machine |
 
@@ -183,3 +183,102 @@ Successfully joined domain and logged in with domain user.
 
 ---
 
+## Phase 6 - Attack Simulation (Brute Force)
+Install brute forcing tool (Crowbar)
+```bash
+sudo apt-get install -y crowbar
+```
+Created the password file
+```bash
+cd /Desktop
+cd /usr/share/wordlists/
+sudo gunzip rockyou.txt.gz
+cp rockyou.txt ~/Desktop/ad-project
+cd /Desktop/ad-project
+head -n 20 rockyou.txt > passwords.txt
+```
+Add the targeted account password to the passwords.txt file.
+
+(Got Alot of errors working with crowbar so I switched to Hydra)
+
+```bash
+hydra -t 1 -l Roshni -P passwords.txt (TARGET-IP) rdp
+```
+
+### Result
+- Multiple failed logins (Event ID 4625)
+- One successful login (Event ID 4624)
+
+Purpose:
+* Simulate brute-force attack against RDP service.
+
+---
+
+## Phase 7 - Detection in Splunk
+#### Failed Logins (Event ID 4625)
+```bash
+index=endpoint EventCode=4625
+```
+Shows:
+- Failed login attempts
+- Source IP (attacker)
+- Target account
+
+#### Successful Login (Event ID 4624)
+```bash
+index=endpoint EventCode=4624
+```
+Shows:
+- Successful compromise
+- Authentication details
+
+---
+
+## Phase 8 - Atomic Red Team Simulation
+*Installed Atomic Red Team on Target Machine (Windows Endpoint)*
+
+#### Run Test
+```bash
+Invoke-AtomicTest T1136.001
+```
+
+Purpose:
+- Simulates Local account creation
+
+#### Detection in Splunk
+Logs showed:
+- New user creation
+- Privilege escalation
+- Full event timeline
+
+#### Value
+Maps directly to MITRE ATT&CK techniques.
+
+---
+
+## Screenshots & Full Walkthrough
+Complete step-by-step screenshots (66 images) documenting:
+- Installation
+- Configuration
+- Errors encountered
+- Troubleshooting process
+
+Available in:
+
+[All Screenshots](./screenshots/)
+
+---
+
+## Key Takeaways
+
+- Centralized logging is critical for detection
+- Authentication logs reveal brute-force attacks
+- DNS misconfiguration can break domain connectivity
+- Attack simulation helps validate detection capabilities
+- Troubleshooting builds real-world SOC skills
+
+---
+
+## Conclusion
+
+This lab demonstrates how attackers target Active Directory environments and how defenders detect such activity using endpoint telemetry and SIEM tools. It highlights the importance of monitoring authentication events and understanding attacker behavior through logs.
